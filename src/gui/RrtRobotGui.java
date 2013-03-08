@@ -244,5 +244,4 @@ public class RrtRobotGui {
 		gui.clearGraphicsPanel();
 		gui.update();
 	}
-
 }
