@@ -2,11 +2,14 @@ package gui;
 
 import java.awt.Color;
 
-import javax.swing.text.StyleContext.SmallAttributeSet;
-
-import model.Configuration;
-import primitiveRenderables.RenderableOval;
 import dataStructures.IntPoint;
+
+import model.PfRobotModel;
+import model.RobotConfiguration;
+import model.Goal;
+import primitiveRenderables.RenderableOval;
+import primitiveRenderables.RenderablePoint;
+import primitiveRenderables.RenderablePolyline;
 import easyGui.EasyGui;
 
 public class PfRobotGui {
@@ -68,11 +71,17 @@ public class PfRobotGui {
 	 */
 	private final int fixedSetupButtonId;
 
-	private final RenderableOval robot;
+	private final RenderableOval robotOval;
 
-	private final RenderableOval goal;
+	private final RenderableOval goalOval;
 	
-	private final RenderableOval sensorRange;
+	private final RenderableOval sensorRangeOval;
+	
+	private final RenderablePoint[] samplePoints;
+	
+	private final RenderablePolyline[] sensorRays;
+	
+
 
 	public PfRobotGui(Object actionListener)
 	{
@@ -83,7 +92,7 @@ public class PfRobotGui {
 		gui.addLabel(0, 0, "Start (x, y, phi, radius)");
 		robotStartXTextFieldId = gui.addTextField(0, 1, "200");
 		robotStartYTextFieldId = gui.addTextField(0, 2, "200");
-		robotStartPhiTextFieldId = gui.addTextField(0, 3, "0.0");
+		robotStartPhiTextFieldId = gui.addTextField(0, 3, "0");
 		robotStartRadiusTextFieldId = gui.addTextField(0, 4, "50");
 
 		// Configuration of the goal.
@@ -97,12 +106,26 @@ public class PfRobotGui {
 		fixedSetupButtonId = gui.addButton(1, 5,"Fixed setup", actionListener, "fixedSetup");
 
 		// Create additional Renderables.
-		robot = new RenderableOval(0, 0, 0, 0);
-		robot.setProperties(Color.RED, 1.0f, true);
-		goal = new RenderableOval(0, 0, 0, 0);
-		goal.setProperties(Color.GREEN, 1.0f, true);
-		sensorRange = new RenderableOval(0, 0, 0, 0);
-		sensorRange.setProperties(Color.BLACK, 1.0f, false);
+		robotOval = new RenderableOval(0, 0, 0, 0);
+		robotOval.setProperties(Color.RED, 1.0f, true);
+		goalOval = new RenderableOval(0, 0, 0, 0);
+		goalOval.setProperties(Color.GREEN, 1.0f, true);
+		sensorRangeOval = new RenderableOval(0, 0, 0, 0);
+		sensorRangeOval.setProperties(Color.BLACK, 1.0f, false);
+		
+		// Sample points and sensor rays.
+		samplePoints = new RenderablePoint[PfRobotModel.SAMPLE_POINT_COUNT];
+		sensorRays = new RenderablePolyline[PfRobotModel.SAMPLE_POINT_COUNT];
+		for (int i = 0; i < samplePoints.length; i++) {
+			
+			samplePoints[i] = new RenderablePoint(100, 100);
+			samplePoints[i].setProperties(Color.BLUE, 5.0f, false);
+			
+			sensorRays[i] = new RenderablePolyline();
+			sensorRays[i].setProperties(Color.BLACK, 1.0f);
+			sensorRays[i].addPoint(0, 0);
+			sensorRays[i].addPoint(0, 0);
+		}
 
 		// Show the GUI.
 		gui.show();
@@ -113,73 +136,95 @@ public class PfRobotGui {
 	 * with those values.
 	 * @return An RrtConfiguration with the values shown in the GUI.
 	 */
-	public Configuration readStartConfiguration() {
+	public RobotConfiguration readStartConfiguration() {
 
-		float startX = Float.parseFloat(gui.getTextFieldContent(robotStartXTextFieldId));
-		float startY = Float.parseFloat(gui.getTextFieldContent(robotStartYTextFieldId));
-		float startPhi = Float.parseFloat(gui.getTextFieldContent(robotStartPhiTextFieldId));
-		float startRadius = Float.parseFloat(gui.getTextFieldContent(robotStartRadiusTextFieldId));
+		int startX = Integer.parseInt(gui.getTextFieldContent(robotStartXTextFieldId));
+		int startY = Integer.parseInt(gui.getTextFieldContent(robotStartYTextFieldId));
+		int startPhi = Integer.parseInt(gui.getTextFieldContent(robotStartPhiTextFieldId));
+		int startRadius = Integer.parseInt(gui.getTextFieldContent(robotStartRadiusTextFieldId));
+		
+		// TODO int for phi in degrees, later converted to radians.
 
-		return new Configuration(startX, startY, startPhi, startRadius);
+		return new RobotConfiguration(startX, startY, startPhi, startRadius, 200); // TODO
 	}
 
-	public Configuration readGoalConfiguration()
+	public Goal readGoalConfiguration()
 	{
 		float goalX = Float.parseFloat(gui.getTextFieldContent(goalXTextField));
 		float goalY = Float.parseFloat(gui.getTextFieldContent(goalYTextField));
-		float goalSize = Float.parseFloat(gui.getTextFieldContent(goalRadiusTextField));
+		float goalRadius = Float.parseFloat(gui.getTextFieldContent(goalRadiusTextField));
 		
-		return new Configuration(goalX, goalY, 0, goalSize);
+		return new Goal(goalX, goalY, goalRadius);
 	}
 
-	public void drawRobot(Configuration robotConfiguration) {
+	public void drawRobot(int x, int y, int radius) {
 
-		gui.unDraw(robot);
+		gui.unDraw(robotOval);
 
-		robot.centreX = (int) robotConfiguration.getX();
-		robot.centreY = (int) robotConfiguration.getY();
+		robotOval.centreX = x;
+		robotOval.centreY = y;
 
-		int diameter = (int) (robotConfiguration.getSize() * 2);
-		robot.height = diameter;
-		robot.width = diameter;
+		int diameter = radius * 2;
+		robotOval.height = diameter;
+		robotOval.width = diameter;
 
-		gui.draw(robot);
+		gui.draw(robotOval);
 	}
 	
-	// TODO design and implement.
-	public void drawSamplePoints(Configuration[] samplePoints) {
-		
-		for (int i = 0; i < samplePoints.length; i++) {
+	public void drawSamplePoints(IntPoint[] intSamplePoints) {
 			
+		for (int i = 0; i < PfRobotModel.SAMPLE_POINT_COUNT; i++) {
+			
+			gui.unDraw(samplePoints[i]);
+
+			samplePoints[i].x = intSamplePoints[i].x;
+			samplePoints[i].y = intSamplePoints[i].y;
+			
+			gui.draw(samplePoints[i]);
 		}
 	}
 	
-	public void drawSensorRange(Configuration sensorConfiguration) {
+	public void drawSensorRays(int robotX, int robotY, IntPoint[] intSensorPoints) {
 		
-		gui.unDraw(sensorRange);
+		for (int i = 0; i < PfRobotModel.SAMPLE_POINT_COUNT; i++) {
+			
+			gui.unDraw(sensorRays[i]);
+			
+			sensorRays[i].xPoints.set(0, robotX);
+			sensorRays[i].yPoints.set(0, robotY);
+			sensorRays[i].xPoints.set(1, intSensorPoints[i].x);
+			sensorRays[i].yPoints.set(1, intSensorPoints[i].y);
+			
+			gui.draw(sensorRays[i]);
+		}
+	}
+	
+	public void drawSensorRange(int x, int y, int radius) {
+		
+		gui.unDraw(sensorRangeOval);
 
-		sensorRange.centreX = (int) sensorConfiguration.getX();
-		sensorRange.centreY = (int) sensorConfiguration.getY();
+		sensorRangeOval.centreX = x;
+		sensorRangeOval.centreY = y;
 
-		int diameter = (int) (sensorConfiguration.getSize() * 2);
-		sensorRange.height = diameter;
-		sensorRange.width = diameter;
+		int diameter = radius * 2;
+		sensorRangeOval.height = diameter;
+		sensorRangeOval.width = diameter;
 
-		gui.draw(sensorRange);
+		gui.draw(sensorRangeOval);
 	}
 
-	public void drawGoal(Configuration goalfiguration) {
+	public void drawGoal(Goal goalfiguration) {
 
-		gui.unDraw(goal);
+		gui.unDraw(goalOval);
 
-		goal.centreX = (int) goalfiguration.getX();
-		goal.centreY = (int) goalfiguration.getY();
+		goalOval.centreX = (int) goalfiguration.getX();
+		goalOval.centreY = (int) goalfiguration.getY();
 
-		int diameter = (int) (goalfiguration.getSize() * 2);
-		goal.height = diameter;
-		goal.width = diameter;
+		int diameter = (int) (goalfiguration.getRadius() * 2);
+		goalOval.height = diameter;
+		goalOval.width = diameter;
 
-		gui.draw(goal);
+		gui.draw(goalOval);
 	}
 
 	/**
