@@ -2,34 +2,20 @@ package model;
 
 import java.util.ArrayList;
 
-public class PfRobot {
+public class PfRobot extends BaseRobot {
 	
-	public static final int SAMPLE_POINT_COUNT = 7; // should be always at least 2.
+	public static final int SAMPLE_POINT_COUNT = 7; // should be always at least 2, TODO should depend on sensor range 
 		
 	private PfController controller;
-	
-	private Point position;
-	private double phi; // in radians, anti-clockwise, faces E if 0.
-	private int robotRadius;
-	private int sensorRadius;
-	private int stepSize;
-	private Goal goal;
 	
 	private Point[] samplePoints;
 	private Point[] sensorPoints;
 	private ArrayList<Point> collisionPoints;
 
-	public PfRobot(RobotConfiguration robotConfiguration, PfController controller) {
+	public PfRobot(BaseRobotConfiguration robotConfiguration, PfController controller) {
 		
+		super(robotConfiguration, controller);
 		this.controller = controller;
-		
-		// Read the configuration.
-		position = robotConfiguration.getPosition();
-		phi = Math.toRadians(robotConfiguration.getPhi()); // Convert to radians.
-		robotRadius = robotConfiguration.getRobotRadius();
-		sensorRadius = robotConfiguration.getSensorRadius();
-		stepSize = robotConfiguration.getStepSize();
-		goal = robotConfiguration.getGoal();
 			
 		samplePoints = new Point[SAMPLE_POINT_COUNT];
 		sensorPoints = new Point[SAMPLE_POINT_COUNT];
@@ -52,7 +38,7 @@ public class PfRobot {
 		if (isGoalReached()) {
 			return;
 		}
-			
+		
 		// For each sample point,
 		double minPotential = Double.MAX_VALUE;
 		int minSamplePoint = -1;
@@ -68,7 +54,7 @@ public class PfRobot {
 		
 		// TODO even case.
 		if (minSamplePoint != SAMPLE_POINT_COUNT / 2) {
-			controller.incrementTurns();
+			controller.incrementTurnsCount();
 		}
 		
 		// Make a move to the best sample point and update sample and sensor points.

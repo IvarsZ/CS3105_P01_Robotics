@@ -8,14 +8,14 @@ import rrts.RRTree2D;
 import rrts.RrtConfiguration;
 import dataStructures.IntPoint;
 
-public class RrtRobotModel {
+public class RrtRobot {
 
 	// ================================================================
 	// ======================== Static Methods ========================
 	// ================================================================
 	public static void main(String[] args)
 	{
-		RrtRobotModel rrts =  new RrtRobotModel();
+		RrtRobot rrts =  new RrtRobot();
 		RrtRobotGui gui = new RrtRobotGui(rrts);
 		rrts.setGui(gui);
 	}
@@ -42,7 +42,7 @@ public class RrtRobotModel {
 	// ================================================================
 	// ======================== Constructor(s) ========================
 	// ================================================================
-	public RrtRobotModel()
+	public RrtRobot()
 	{
 		tree = new RRTree2D(Color.BLACK);
 		randomCfg = new RrtConfiguration();

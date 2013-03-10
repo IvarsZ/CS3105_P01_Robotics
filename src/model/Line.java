@@ -1,6 +1,5 @@
 package model;
 
-import dataStructures.IntPoint;
 
 public class Line {
 	

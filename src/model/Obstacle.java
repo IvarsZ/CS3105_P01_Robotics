@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import dataStructures.IntPoint;
-
 public class Obstacle implements Iterable<Line> {
 	
 	private ArrayList<Point> points;

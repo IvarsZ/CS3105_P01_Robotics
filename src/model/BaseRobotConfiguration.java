@@ -1,6 +1,6 @@
 package model;
 
-public class RobotConfiguration {
+public class BaseRobotConfiguration {
 
 	private Point position;
 	private int phi;
@@ -9,7 +9,7 @@ public class RobotConfiguration {
 	private int stepSize;
 	private Goal goal;
 
-	public RobotConfiguration(int x, int y, int phi, int robotRadius, int sensorRadius, int stepSize, Goal goal) {
+	public BaseRobotConfiguration(int x, int y, int phi, int robotRadius, int sensorRadius, int stepSize, Goal goal) {
 		
 		this.phi = phi;
 		this.robotRadius = robotRadius;
