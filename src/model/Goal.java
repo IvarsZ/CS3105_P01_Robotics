@@ -2,33 +2,20 @@ package model;
 
 public class Goal {
 	
-	double x;
-	double y;
-	double radius;
+	private Point position;
+	private int radius;
 	
-	public Goal(double x, double y, double radius) {
+	public Goal(double x, double y, int radius) {
 		super();
-		this.x = x;
-		this.y = y;
+		position = new Point(x, y);
 		this.radius = radius;
+	}
+
+	public Point getPosition() {
+		return position;
 	}
 	
-	public double getX() {
-		return x;
-	}
-	public void setX(double x) {
-		this.x = x;
-	}
-	public double getY() {
-		return y;
-	}
-	public void setY(double y) {
-		this.y = y;
-	}
-	public double getRadius() {
+	public int getRadius() {
 		return radius;
-	}
-	public void setRadius(double radius) {
-		this.radius = radius;
 	}
 }
