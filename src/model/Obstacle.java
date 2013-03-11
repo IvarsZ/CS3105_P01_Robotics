@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import model.geometry.Line;
+import model.geometry.Point;
+
 public class Obstacle implements Iterable<Line> {
 	
 	private ArrayList<Point> points;

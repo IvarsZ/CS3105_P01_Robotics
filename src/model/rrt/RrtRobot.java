@@ -1,7 +1,11 @@
-package model;
+package model.rrt;
 
 import java.awt.Color;
 import java.util.ArrayList;
+
+import model.BaseRobot;
+import model.geometry.DirectedPoint;
+import model.geometry.Point;
 
 import rrts.RRTree2D;
 import rrts.RrtConfiguration;
@@ -36,9 +40,9 @@ public class RrtRobot extends BaseRobot {
 		
 		centreOfBound = new Point((position.x + goal.getPosition().x)/2, (position.y + goal.getPosition().y)/2);
 		System.out.println(centreOfBound);
-		radiusOfBound = position.distanceTo(goal.getPosition()); // TODO ratio
+		radiusOfBound = position.distanceTo(goal.getPosition()) * (0.5 + robotConfiguration.getCircleBoundExtra());
 		
-		goalBias = 0.1; // TODO input.
+		goalBias = robotConfiguration.getGoalBias();
 	}
 
 	@Override

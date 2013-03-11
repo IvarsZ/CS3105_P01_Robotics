@@ -1,9 +1,13 @@
-package model;
+package model.pf;
 
 import gui.PfRobotGui;
 import gui.RobotGuiBase;
 
 import java.util.Scanner;
+
+import model.BaseController;
+import model.BaseRobot;
+import model.BaseSetup;
 
 public class PfController extends BaseController {
 	
@@ -43,25 +47,13 @@ public class PfController extends BaseController {
 	}
 
 	@Override
-	protected void readRobotConfiguration(Scanner in) {
+	protected void readSubSetup(Scanner in) {
 		
-		// p.x, p.y, phi, R, sensorR, stepS, goal.x, goal.y goal.R.
-		int x = in.nextInt();
-		int y = in.nextInt();
-		int r = in.nextInt();
-		int phi = in.nextInt();
+		BaseSetup baseSetup = readBaseSetupFromFile(in);
 		int sensorRadius = in.nextInt();
-		int stepSize = in.nextInt();
-		int goalX = in.nextInt();
-		int goalY = in.nextInt();
-		int goalR = in.nextInt();
-		
-		gui.clear();
-
-		// Read goal and robot's start configuration.
-		PfSetup robotConfiguration =
-						   new PfSetup(x, y, phi, r, sensorRadius, stepSize, new Goal(goalX, goalY, goalR));
-		robot = new PfRobot(robotConfiguration, this);
+		int samplePointCount = in.nextInt();
+		PfSetup pfSetup = new PfSetup(baseSetup, sensorRadius, samplePointCount);
+		robot = new PfRobot(pfSetup, this);
 	}
 
 	@Override

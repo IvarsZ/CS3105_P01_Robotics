@@ -1,5 +1,7 @@
 package model;
 
+import model.geometry.Point;
+
 public class Goal {
 	
 	private Point position;

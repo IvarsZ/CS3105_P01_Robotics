@@ -1,4 +1,7 @@
-package model;
+package model.rrt;
+
+import model.BaseSetup;
+import model.Goal;
 
 public class RrtSetup extends BaseSetup {
 	
@@ -19,4 +22,11 @@ public class RrtSetup extends BaseSetup {
 		this.circleBoundExtra = circleBoundRatio;
 	}
 
+	public double getGoalBias() {
+		return goalBias;
+	}
+
+	public double getCircleBoundExtra() {
+		return circleBoundExtra;
+	}
 }

@@ -1,5 +1,7 @@
 package model;
 
+import model.geometry.DirectedPoint;
+
 public class BaseSetup {
 
 	private DirectedPoint position;

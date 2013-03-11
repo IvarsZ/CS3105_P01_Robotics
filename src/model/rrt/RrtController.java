@@ -1,9 +1,16 @@
-package model;
+package model.rrt;
 
 import gui.RobotGuiBase;
 import gui.RrtRobotGui;
 
 import java.util.Scanner;
+
+import model.BaseController;
+import model.BaseRobot;
+import model.BaseSetup;
+import model.geometry.Point;
+import model.pf.PfRobot;
+import model.pf.PfSetup;
 
 public class RrtController extends BaseController {
 	
@@ -73,24 +80,13 @@ public class RrtController extends BaseController {
 	}
 
 	@Override
-	protected void readRobotConfiguration(Scanner in) {
+	protected void readSubSetup(Scanner in) {
 		
-		// p.x, p.y, phi, R, sensorR, stepS, goal.x, goal.y goal.R.
-		int x = in.nextInt();
-		int y = in.nextInt();
-		int r = in.nextInt();
-		int phi = in.nextInt();
-		int sensorRadius = in.nextInt();
-		int stepSize = in.nextInt();
-		int goalX = in.nextInt();
-		int goalY = in.nextInt();
-		int goalR = in.nextInt();
-		gui.clear();
-
-		// Read goal and robot's start configuration.
-		// FIXME RrtSetup robotConfiguration =
-		//				   new RrtSetup(x, y, phi, r, sensorRadius, stepSize, new Goal(goalX, goalY, goalR));
-		// robot = new RrtRobot(robotConfiguration, this);
+		BaseSetup baseSetup = readBaseSetupFromFile(in);
+		double goalBias = in.nextDouble();
+		double circleBoundExtra = in.nextDouble();
+		RrtSetup rrtSetup = new RrtSetup(baseSetup, goalBias, circleBoundExtra);
+		robot = new RrtRobot(rrtSetup, this);
 	}
 
 	@Override

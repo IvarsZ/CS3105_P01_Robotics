@@ -1,4 +1,4 @@
-package model;
+package model.geometry;
 
 import rrts.RrtConfiguration;
 import dataStructures.IntPoint;

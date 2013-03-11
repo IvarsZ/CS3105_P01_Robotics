@@ -1,4 +1,5 @@
-package model;
+package model.geometry;
+
 
 
 public class Line {

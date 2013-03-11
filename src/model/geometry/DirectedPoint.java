@@ -1,11 +1,11 @@
-package model;
+package model.geometry;
 
 import rrts.RrtConfiguration;
 
 public class DirectedPoint extends Point {
 
 	// TODO make sure all classes use this.
-	protected double phi; // heading.
+	public double phi; // heading.
 	
 	public DirectedPoint(double x, double y, double phi) {
 		super(x, y);

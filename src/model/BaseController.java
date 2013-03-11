@@ -9,6 +9,9 @@ import java.util.Scanner;
 
 import javax.swing.JFileChooser;
 
+import model.geometry.Line;
+import model.geometry.Point;
+
 public abstract class BaseController {
 	
 	protected Goal goal;
@@ -50,7 +53,7 @@ public abstract class BaseController {
 		}
 	}
 
-	public final void readConfiguration() throws FileNotFoundException {
+	public final void readSetupFromFile() throws FileNotFoundException {
 		final JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showOpenDialog(null);
 
@@ -60,15 +63,31 @@ public abstract class BaseController {
 			// read it and add obstacles.
 			File file = fc.getSelectedFile();
 			Scanner in = new Scanner(file);
-			readRobotConfiguration(in);
 			readObstacles(in);
+			readSubSetup(in);
 			in.close();
-			
 			reset();
 		}
 	}
+	
+	protected final BaseSetup readBaseSetupFromFile(Scanner in) {
+		
+		int x = in.nextInt();
+		int y = in.nextInt();
+		int r = in.nextInt();
+		int phi = in.nextInt();
+		int stepSize = in.nextInt();
+		
+		int goalX = in.nextInt();
+		int goalY = in.nextInt();
+		int goalR = in.nextInt();
+		goal = new Goal(goalX, goalY, goalR);
+		
+		return new BaseSetup(x, y, phi, r, stepSize, goal);
+	}
+	
 
-	public final void readObstacles() throws FileNotFoundException {
+	public final void readObstaclesFromFile() throws FileNotFoundException {
 
 		//Create a file chooser and get the result.
 		final JFileChooser fc = new JFileChooser();
@@ -168,7 +187,7 @@ public abstract class BaseController {
 
 	protected abstract void updateGui();
 
-	protected abstract void readRobotConfiguration(Scanner in);
+	protected abstract void readSubSetup(Scanner in);
 	
 	protected abstract RobotGuiBase getGui();
 	

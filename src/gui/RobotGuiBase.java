@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import model.Goal;
-import model.PfRobot;
-import model.Point;
 import model.BaseSetup;
+import model.geometry.Point;
+import model.pf.PfRobot;
 
 import primitiveRenderables.RenderableOval;
 import primitiveRenderables.RenderablePoint;
@@ -96,8 +96,8 @@ public class RobotGuiBase {
 		gui.addButton(1, 7, "Go", actionListener, "toggleAutoMove");
 		gui.addButton(0, 9, "Fixed setup", actionListener, "fixedSetup");
 		gui.addButton(1, 9, "Random setup", actionListener, "fixedSetup"); // TODO
-		gui.addButton(0, 10, "Read obstacles", actionListener, "readObstacles");
-		gui.addButton(1, 10, "Read configuration", actionListener, "readConfiguration");
+		gui.addButton(0, 10, "Read obstacles", actionListener, "readObstaclesFromFile");
+		gui.addButton(1, 10, "Read setup", actionListener, "readSetupFromFile");
 
 		// Create additional Renderables.
 		robotOval = new RenderableOval(0, 0, 0, 0);
@@ -109,7 +109,7 @@ public class RobotGuiBase {
 		gui.show();
 	}
 
-	public BaseSetup readBaseConfigurationFromGui() {
+	public BaseSetup readBaseSetupFromGu() {
 
 		int startX = Integer.parseInt(gui.getTextFieldContent(robotStartXTextFieldId));
 		int startY = Integer.parseInt(gui.getTextFieldContent(robotStartYTextFieldId));

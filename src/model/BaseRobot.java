@@ -1,5 +1,8 @@
 package model;
 
+import model.geometry.DirectedPoint;
+import model.geometry.Point;
+
 
 public abstract class BaseRobot {
 

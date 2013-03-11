@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import model.BaseSetup;
 import model.Goal;
-import model.PfRobot;
-import model.PfSetup;
-import model.Point;
+import model.geometry.Point;
+import model.pf.PfRobot;
+import model.pf.PfSetup;
 import primitiveRenderables.RenderableOval;
 import primitiveRenderables.RenderablePoint;
 import primitiveRenderables.RenderablePolyline;
@@ -15,55 +15,53 @@ import dataStructures.IntPoint;
 
 public class PfRobotGui extends RobotGuiBase{
 
-	private final RenderablePoint[] samplePoints;
+	private final ArrayList<RenderablePoint> samplePoints;
 
-	private final RenderablePolyline[] sensorRays;
+	private final ArrayList<RenderablePolyline> sensorRays;
 	
 	private final RenderableOval sensorRangeOval;
+	
+	private final int sensorRadiusTextFieldId;
+	
+	private final int samplePointCountTextFieldId;
 
 	public PfRobotGui(Object actionListener)
 	{
 		super(actionListener);
 		
 		gui.addLabel(0, 5, "Sensor radius");
-		gui.addTextField(0,  6, "200");
+		sensorRadiusTextFieldId = gui.addTextField(0,  6, "200");
+		samplePointCountTextFieldId = gui.addTextField(1, 6, "7");
 		
 		sensorRangeOval = new RenderableOval(0, 0, 0, 0);
 		sensorRangeOval.setProperties(Color.BLACK, 1.0f, false);
 
 		// Sample points and sensor rays.
-		samplePoints = new RenderablePoint[PfRobot.SAMPLE_POINT_COUNT];
-		sensorRays = new RenderablePolyline[PfRobot.SAMPLE_POINT_COUNT];
-		for (int i = 0; i < samplePoints.length; i++) {
-
-			samplePoints[i] = new RenderablePoint(100, 100);
-			samplePoints[i].setProperties(Color.BLUE, 5.0f, true);
-
-			sensorRays[i] = new RenderablePolyline();
-			sensorRays[i].setProperties(Color.BLACK, 1.0f);
-			sensorRays[i].addPoint(0, 0);
-			sensorRays[i].addPoint(0, 0);
-		}
+		samplePoints = new ArrayList<RenderablePoint>();
+		sensorRays = new ArrayList<RenderablePolyline>();
 
 		// Show the GUI.
 		gui.show();
 	}
 
 	// TODO better naming too similar with controller.
-	public BaseSetup readBaseConfigurationFromGui() {
-		return super.readBaseConfigurationFromGui();
+	public BaseSetup readBaseSetupFromGu() {
+		return super.readBaseSetupFromGu();
 	}
 
 	public void redrawSamplePoints(Point[] points) {
+		
+		for (RenderablePoint samplePoint : samplePoints) {
+			gui.unDraw(samplePoint);
+		}
+		samplePoints.clear();
 
-		for (int i = 0; i < PfRobot.SAMPLE_POINT_COUNT; i++) {
-
-			gui.unDraw(samplePoints[i]);
-
-			samplePoints[i].x = (int) points[i].x;
-			samplePoints[i].y = (int) points[i].y;
-
-			gui.draw(samplePoints[i]);
+		for (int i = 0; i < points.length; i++) {
+			
+			RenderablePoint samplePoint = new RenderablePoint(points[i].toIntPoint());
+			samplePoint.setProperties(Color.BLUE, 5.0f, true);
+			gui.draw(samplePoint);
+			samplePoints.add(samplePoint);
 		}
 	}
 	
@@ -86,21 +84,23 @@ public class PfRobotGui extends RobotGuiBase{
 	public void redrawSensorRays(Point position, Point[] sensorPoints) {
 
 		IntPoint intPosition = position.toIntPoint();
+		
+		for (RenderablePolyline sensorRay : sensorRays) {
+			gui.unDraw(sensorRay);
+		}
+		sensorRays.clear();
 
-		for (int i = 0; i < PfRobot.SAMPLE_POINT_COUNT; i++) {
-
-			gui.unDraw(sensorRays[i]);
-
-			sensorRays[i].xPoints.set(0, intPosition.x);
-			sensorRays[i].yPoints.set(0, intPosition.y);
-			sensorRays[i].xPoints.set(1, (int) sensorPoints[i].x);
-			sensorRays[i].yPoints.set(1, (int) sensorPoints[i].y);
-
-			gui.draw(sensorRays[i]);
+		for (int i = 0; i < sensorPoints.length; i++) {
+			
+			RenderablePolyline sensorRay = new RenderablePolyline();
+			sensorRay.setProperties(Color.BLACK, 1.0f);
+			sensorRay.addPoint(intPosition);
+			sensorRay.addPoint(sensorPoints[i].toIntPoint());
+			gui.draw(sensorRay);
+			sensorRays.add(sensorRay);
 		}
 	}
 
-	// TODO should it be inherited?
 	public void drawCollisionPoints(ArrayList<Point> collisionPoints) {
 		
 		for (Point collisionPoint : collisionPoints) {
@@ -112,10 +112,10 @@ public class PfRobotGui extends RobotGuiBase{
 	
 	public PfSetup readPfConfigurationFromGui() {
 
-		BaseSetup baseConfiguration =  super.readBaseConfigurationFromGui();
+		BaseSetup baseConfiguration =  super.readBaseSetupFromGu();
 		
-		// TODO
-		int senserRadius = 200;
-		return new PfSetup(baseConfiguration, senserRadius);
+		int senserRadius = Integer.parseInt(gui.getTextFieldContent(sensorRadiusTextFieldId));
+		int samplePointCount = Integer.parseInt(gui.getTextFieldContent(samplePointCountTextFieldId));
+		return new PfSetup(baseConfiguration, senserRadius, samplePointCount);
 	}
 }

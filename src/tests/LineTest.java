@@ -2,8 +2,8 @@ package tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import model.Line;
-import model.Point;
+import model.geometry.Line;
+import model.geometry.Point;
 
 import org.junit.Test;
 

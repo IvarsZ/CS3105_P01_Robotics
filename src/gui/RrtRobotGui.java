@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import model.BaseSetup;
-import model.PfSetup;
-import model.Point;
-import model.RrtSetup;
+import model.geometry.Point;
+import model.pf.PfSetup;
+import model.rrt.RrtSetup;
 import primitiveRenderables.Renderable;
 import primitiveRenderables.RenderableOval;
 import primitiveRenderables.RenderablePoint;
@@ -63,12 +63,11 @@ public class RrtRobotGui extends RobotGuiBase {
 
 	public RrtSetup readRrtConfigurationFromGui() {
 
-		BaseSetup baseConfiguration =  super.readBaseConfigurationFromGui();
+		BaseSetup baseConfiguration =  super.readBaseSetupFromGu();
 
-		// TODO
-		double goalBias = 0.1;
-		double circleBoundRatio = 1;
-		return new RrtSetup(baseConfiguration, goalBias, circleBoundRatio);
+		double goalBias = Double.parseDouble(gui.getTextFieldContent(goalBiasTextFieldId));
+		double circleBoundExtra = Double.parseDouble(gui.getTextFieldContent(circleBoundExtraTextFieldId));
+		return new RrtSetup(baseConfiguration, goalBias, circleBoundExtra);
 	}
 
 }

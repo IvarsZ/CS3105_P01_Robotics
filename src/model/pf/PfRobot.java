@@ -1,10 +1,12 @@
-package model;
+package model.pf;
 
 import java.util.ArrayList;
 
+import model.BaseRobot;
+import model.geometry.Line;
+import model.geometry.Point;
+
 public class PfRobot extends BaseRobot {
-	
-	public static final int SAMPLE_POINT_COUNT = 7; // should be always at least 2, TODO should depend on sensor range 
 		
 	private PfController controller;
 	
@@ -13,16 +15,19 @@ public class PfRobot extends BaseRobot {
 	private ArrayList<Point> collisionPoints;
 	
 	private int sensorRadius;
+	private int samplePointCount;
 
 	public PfRobot(PfSetup robotConfiguration, PfController controller) {
 		
 		super(robotConfiguration, controller);
 		this.controller = controller;
-		this.sensorRadius = robotConfiguration.getSensorRadius();
+		
+		sensorRadius = robotConfiguration.getSensorRadius();
+		samplePointCount = robotConfiguration.getSamplePointCount();
 			
-		samplePoints = new Point[SAMPLE_POINT_COUNT];
-		sensorPoints = new Point[SAMPLE_POINT_COUNT];
-		for (int i = 0; i < SAMPLE_POINT_COUNT; i++) {
+		samplePoints = new Point[samplePointCount];
+		sensorPoints = new Point[samplePointCount];
+		for (int i = 0; i < samplePointCount; i++) {
 			samplePoints[i] = new Point(0, 0);
 			sensorPoints[i] = new Point(0, 0);
 		}
@@ -45,7 +50,7 @@ public class PfRobot extends BaseRobot {
 		// For each sample point,
 		double minPotential = Double.MAX_VALUE;
 		int minSamplePoint = -1;
-		for (int i = 0; i < SAMPLE_POINT_COUNT; i++) {
+		for (int i = 0; i < samplePointCount; i++) {
 			
 			// calculate potential and if it's smaller than current minimum update it.
 			double potential = calculatePotential(samplePoints[i]);
@@ -56,7 +61,7 @@ public class PfRobot extends BaseRobot {
 		}
 		
 		// TODO even case.
-		if (minSamplePoint != SAMPLE_POINT_COUNT / 2) {
+		if (minSamplePoint != samplePointCount / 2) {
 			controller.incrementTurnsCount();
 		}
 		
@@ -71,11 +76,11 @@ public class PfRobot extends BaseRobot {
 	private void updateSampleAndSensorPoints() {
 		
 		// TODO extra rays.
-		double alpha = Math.PI / (SAMPLE_POINT_COUNT - 1);
+		double alpha = Math.PI / (samplePointCount - 1);
 		
 		collisionPoints = new ArrayList<Point>();
 		
-		for (int i = 0; i < SAMPLE_POINT_COUNT; i++) {
+		for (int i = 0; i < samplePointCount; i++) {
 			
 			// sin/cos switchet to have pi/2 offset.
 			samplePoints[i].x = position.x + Math.sin(i*alpha - position.phi) * stepSize;
