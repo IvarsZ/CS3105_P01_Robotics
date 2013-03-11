@@ -21,8 +21,6 @@ public class Line {
 	
 	public Point linesIntersection(Line line) {
 		
-		System.out.println(this + " " + line);
-		
 		// Find intersection
 		double d = (start.x - end.x)*(line.start.y - line.end.y) -
 				   (start.y - end.y)*(line.start.x - line.end.x);
@@ -39,7 +37,6 @@ public class Line {
 		
 		// Between both lines.
 		Point intersectionPoint = new Point(xi, yi);
-		System.out.println(intersectionPoint);
 		if (isPointBetween(intersectionPoint) && line.isPointBetween(intersectionPoint)) {
 			return intersectionPoint;
 		}

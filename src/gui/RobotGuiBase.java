@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import model.Goal;
 import model.PfRobot;
 import model.Point;
-import model.BaseRobotConfiguration;
+import model.BaseSetup;
 
 import primitiveRenderables.RenderableOval;
 import primitiveRenderables.RenderablePoint;
@@ -22,7 +22,7 @@ public class RobotGuiBase {
 	/**
 	 * The initial width of the GUI's graphics panel.
 	 */
-	public static final int GUI_WIDTH = 1000;
+	public static final int GUI_WIDTH = 1200;
 
 	/**
 	 * The initial height of the GUI's graphics panel.
@@ -60,6 +60,8 @@ public class RobotGuiBase {
 	 * The ID of the text field for the goal position's y-value.
 	 */
 	private final int goalYTextField;
+	
+	private final int stepSizeTextField;
 
 	/**
 	 * The ID of the text field for the goal position's size-value.
@@ -67,8 +69,6 @@ public class RobotGuiBase {
 	private final int goalRadiusTextField;
 
 	private final RenderableOval robotOval;
-
-	private final RenderableOval sensorRangeOval;
 
 	private final RenderablePolyline robotMovementLine;
 
@@ -78,30 +78,30 @@ public class RobotGuiBase {
 		gui = new EasyGui(GUI_WIDTH, GUI_HEIGHT);
 
 		// Configuration of the robot.
-		gui.addLabel(0, 0, "Start (x, y, phi, radius)");
+		gui.addLabel(0, 0, "Start(x, y, phi, radius)");
 		robotStartXTextFieldId = gui.addTextField(0, 1, "200");
 		robotStartYTextFieldId = gui.addTextField(0, 2, "200");
 		robotStartPhiTextFieldId = gui.addTextField(0, 3, "0");
 		robotRadiusTextFieldId = gui.addTextField(0, 4, "50");
+		stepSizeTextField = gui.addTextField(1, 4, "25");
 
 		// Configuration of the goal.
-		gui.addLabel(1, 0, "Goal (x, y, radius)");
+		gui.addLabel(1, 0, "Goal(x, y, radius), step size");
 		goalXTextField = gui.addTextField(1, 1, "800");
 		goalYTextField = gui.addTextField(1, 2, "600");
-		goalRadiusTextField = gui.addTextField(1, 4, "50");
+		goalRadiusTextField = gui.addTextField(1, 3, "50");
 
 		// Setup buttons.
-		gui.addButton(0, 5, "Move", actionListener, "moveRobot");
-		gui.addButton(1, 5, "Fixed setup", actionListener, "fixedSetup");
-		gui.addButton(0, 6, "Auto move", actionListener, "toggleAutoMove");
-		gui.addButton(1, 6, "Read obstacles", actionListener, "readObstacles");
-		gui.addButton(1, 7, "Read configuration", actionListener, "readConfiguration");
+		gui.addButton(0, 7, "Step", actionListener, "moveRobot"); // TODO rename methods.
+		gui.addButton(1, 7, "Go", actionListener, "toggleAutoMove");
+		gui.addButton(0, 9, "Fixed setup", actionListener, "fixedSetup");
+		gui.addButton(1, 9, "Random setup", actionListener, "fixedSetup"); // TODO
+		gui.addButton(0, 10, "Read obstacles", actionListener, "readObstacles");
+		gui.addButton(1, 10, "Read configuration", actionListener, "readConfiguration");
 
 		// Create additional Renderables.
 		robotOval = new RenderableOval(0, 0, 0, 0);
 		robotOval.setProperties(Color.RED, 1.0f, true);
-		sensorRangeOval = new RenderableOval(0, 0, 0, 0);
-		sensorRangeOval.setProperties(Color.BLACK, 1.0f, false);
 		robotMovementLine = new RenderablePolyline();
 		robotMovementLine.setProperties(Color.RED, 1.0f);
 
@@ -109,17 +109,13 @@ public class RobotGuiBase {
 		gui.show();
 	}
 
-	/**
-	 * Parses the content of the start configuration's text boxes and returns an RrtConfiguration
-	 * with those values.
-	 * @return An RrtConfiguration with the values shown in the GUI.
-	 */
-	public BaseRobotConfiguration readStartConfiguration() {
+	public BaseSetup readBaseConfigurationFromGui() {
 
 		int startX = Integer.parseInt(gui.getTextFieldContent(robotStartXTextFieldId));
 		int startY = Integer.parseInt(gui.getTextFieldContent(robotStartYTextFieldId));
 		int startPhi = Integer.parseInt(gui.getTextFieldContent(robotStartPhiTextFieldId));
 		int startRadius = Integer.parseInt(gui.getTextFieldContent(robotRadiusTextFieldId));
+		int stepSize = Integer.parseInt(gui.getTextFieldContent(stepSizeTextField));
 		
 		int goalX = Integer.parseInt(gui.getTextFieldContent(goalXTextField));
 		int goalY = Integer.parseInt(gui.getTextFieldContent(goalYTextField));
@@ -127,8 +123,7 @@ public class RobotGuiBase {
 
 		Goal goal =  new Goal(goalX, goalY, goalRadius);
 
-		// TODO int for phi in degrees, later converted to radians. explain, comment etc.
-		return new BaseRobotConfiguration(startX, startY, startPhi, startRadius, 200, 10, goal); // TODO
+		return new BaseSetup(startX, startY, startPhi, startRadius, stepSize, goal);
 	}
 
 	public final void redrawRobot(Point position, int radius) {
@@ -150,22 +145,6 @@ public class RobotGuiBase {
 		// Draw the movement line.
 		robotMovementLine.addPoint(intPosition.x, intPosition.y);
 		gui.draw(robotMovementLine);
-	}
-
-	public final void redrawSensorRange(Point position, int radius) {
-
-		IntPoint intPosition = position.toIntPoint();
-
-		gui.unDraw(sensorRangeOval);
-
-		sensorRangeOval.centreX = intPosition.x;
-		sensorRangeOval.centreY = intPosition.y;
-
-		int diameter = radius * 2;
-		sensorRangeOval.height = diameter;
-		sensorRangeOval.width = diameter;
-
-		gui.draw(sensorRangeOval);
 	}
 
 	public final void drawGoal(Goal goal) {

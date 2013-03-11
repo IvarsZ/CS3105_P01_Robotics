@@ -1,101 +1,136 @@
 package model;
 
-import gui.RrtRobotGui;
-
 import java.awt.Color;
+import java.util.ArrayList;
 
 import rrts.RRTree2D;
 import rrts.RrtConfiguration;
-import dataStructures.IntPoint;
 
-public class RrtRobot {
+// TODO naming.
 
-	// ================================================================
-	// ======================== Static Methods ========================
-	// ================================================================
-	public static void main(String[] args)
-	{
-		RrtRobot rrts =  new RrtRobot();
-		RrtRobotGui gui = new RrtRobotGui(rrts);
-		rrts.setGui(gui);
+public class RrtRobot extends BaseRobot {
+
+	private RrtController controller;
+
+	private boolean solved;
+	private RRTree2D rrTree;
+	private Point lastSamplePoint;
+
+	private ArrayList<RrtConfiguration> path;
+	private int pathIndex;
+	
+	private Point centreOfBound;
+	private double radiusOfBound; // TODO extra when reading in.
+	private double goalBias;
+
+	public RrtRobot(RrtSetup robotConfiguration, RrtController controller) {
+		super(robotConfiguration, controller);
+
+		this.controller = controller;
+
+		solved = false;
+		lastSamplePoint = null;
+
+		rrTree = new RRTree2D(Color.BLACK);
+		rrTree.setStartAndGoal(position.toRrtConfiguration(), goal.getPosition().toIntPoint(), goal.getRadius());
+		
+		centreOfBound = new Point((position.x + goal.getPosition().x)/2, (position.y + goal.getPosition().y)/2);
+		System.out.println(centreOfBound);
+		radiusOfBound = position.distanceTo(goal.getPosition()); // TODO ratio
+		
+		goalBias = 0.1; // TODO input.
 	}
 
-	// ================================================================
-	// ======================== Static Fields =========================
-	// ================================================================
+	@Override
+	public void step() throws InterruptedException {
 
-	// ================================================================
-	// ============================ Fields ============================
-	// ================================================================
-	private RrtRobotGui gui;
+		while (!solved) {
+			expand();
+			controller.updateGui();
+		}
 
-	private final RRTree2D tree;
+		if (path == null) {
 
-	private RrtConfiguration randomCfg;
+			// move. // TODO this is automove instead of step.
+			RrtConfiguration goalConfiguration = new RrtConfiguration((float) goal.getPosition().x, (float) goal.getPosition().y, 0);
+			RrtConfiguration nearestNodeToGoal = rrTree.getNearestNeighbour(goalConfiguration);
 
-	private IntPoint goalPoint;
+			path = rrTree.getPathFromRootTo(nearestNodeToGoal);
+			if (path.size() > 1) {
+				pathIndex = 1;
+			}
+		}
 
-	private int currentRandomRadius;
-
-	private boolean isGoalBiasOn;
-
-	// ================================================================
-	// ======================== Constructor(s) ========================
-	// ================================================================
-	public RrtRobot()
-	{
-		tree = new RRTree2D(Color.BLACK);
-		randomCfg = new RrtConfiguration();
+		position = new DirectedPoint(path.get(pathIndex));
+		pathIndex++;
 	}
 
-	// ================================================================
-	// ======================== Private Methods =======================
-	// ================================================================
-	private final void updateGui()
-	{
-		gui.drawRandomConfiguration(randomCfg);
-		gui.drawTree(tree);
-		gui.drawSearchSpace(goalPoint, currentRandomRadius);
-		gui.update();
+	protected void expand() {
+
+		if (!solved) {
+
+			boolean didExpand = false;
+			while (!didExpand) {
+
+				// Random sample point with goal bias.
+				double r = Math.random();
+				if (r <= goalBias) {
+					lastSamplePoint = goal.getPosition();
+				}
+				else {
+					lastSamplePoint = Point.uniformRandomPointInCirle(centreOfBound, radiusOfBound);
+				}
+				double x = lastSamplePoint.x;
+				double y = lastSamplePoint.y;
+
+				RrtConfiguration nearestNode = rrTree.getNearestNeighbour(new DirectedPoint(x, y, 0).toRrtConfiguration());
+
+				// Expand it towards the sample point (ends up facing it), but bound it.
+				float alpha = (float) Math.atan2(y - nearestNode.getY(), x - nearestNode.getX()) - nearestNode.getPhi();
+				if (alpha < -Math.PI/2) {
+					alpha = (float) (-Math.PI/2);
+				}
+				if (alpha > Math.PI/2) {
+					alpha = (float) (Math.PI/2);
+				}
+
+				// Check for collision.
+				System.out.println(alpha + " " + nearestNode.getPhi());
+				if (controller.collisionPointWithRay(new Point(nearestNode.getX(), nearestNode.getY()), stepSize, alpha/2 + nearestNode.getPhi()) == null) {
+
+					rrTree.addNode(nearestNode, stepSize, alpha);
+
+					// Check if the goal is reached.
+					RrtConfiguration goalConfiguration = new RrtConfiguration((float) goal.getPosition().x, (float) goal.getPosition().y, 0);
+					RrtConfiguration nearestNodeToGoal = rrTree.getNearestNeighbour(goalConfiguration);
+					if (nearestNodeToGoal.distanceTo2d(goalConfiguration) <= robotRadius + goal.getRadius()) {
+						solved = true;
+					}
+
+
+					didExpand = true;
+				}
+			}
+		}
 	}
 
-	// ================================================================
-	// ======================== Public Methods ========================
-	// ================================================================
-	public final void setGui(RrtRobotGui gui)
-	{
-		this.gui = gui;
-		fixedSetup();
+	protected Point getLastSamplePoint() {
+		return lastSamplePoint;
 	}
 
-	public final void fixedSetup()
-	{
-
+	protected RRTree2D getRRTree() {
+		return rrTree;
 	}
 
-	public final void randomSetup()
-	{
-
+	protected boolean isSolved() {
+		return solved;
 	}
 
-	public void makeRandomMove()
-	{
-
+	public Point getCentreOfBound() {
+		return centreOfBound;
 	}
 
-	public void autoMove()
-	{
-
-	}
-
-	public void solve()
-	{
-
-	}
-
-	public final void toggleGoalBias()
-	{
-		isGoalBiasOn = !isGoalBiasOn;
-		gui.setGoalBiasButton(isGoalBiasOn);
+	public double getRadiusOfBound() {
+		return radiusOfBound;
 	}
 }

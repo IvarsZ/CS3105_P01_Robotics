@@ -11,11 +11,14 @@ public class PfRobot extends BaseRobot {
 	private Point[] samplePoints;
 	private Point[] sensorPoints;
 	private ArrayList<Point> collisionPoints;
+	
+	private int sensorRadius;
 
-	public PfRobot(BaseRobotConfiguration robotConfiguration, PfController controller) {
+	public PfRobot(PfSetup robotConfiguration, PfController controller) {
 		
 		super(robotConfiguration, controller);
 		this.controller = controller;
+		this.sensorRadius = robotConfiguration.getSensorRadius();
 			
 		samplePoints = new Point[SAMPLE_POINT_COUNT];
 		sensorPoints = new Point[SAMPLE_POINT_COUNT];
@@ -32,7 +35,7 @@ public class PfRobot extends BaseRobot {
 	 * 
 	 * @return true if turned
 	 */
-	public void move() {
+	public void step() {
 		
 		// Does nothing if the goal is reached.
 		if (isGoalReached()) {
@@ -58,7 +61,7 @@ public class PfRobot extends BaseRobot {
 		}
 		
 		// Make a move to the best sample point and update sample and sensor points.
-		phi = Math.atan2((1.0 * samplePoints[minSamplePoint].y - position.y), (samplePoints[minSamplePoint].x - position.x));
+		position.phi = Math.atan2((1.0 * samplePoints[minSamplePoint].y - position.y), (samplePoints[minSamplePoint].x - position.x));
 		position.x = samplePoints[minSamplePoint].x;
 		position.y = samplePoints[minSamplePoint].y;
 		updateSampleAndSensorPoints();
@@ -73,10 +76,12 @@ public class PfRobot extends BaseRobot {
 		collisionPoints = new ArrayList<Point>();
 		
 		for (int i = 0; i < SAMPLE_POINT_COUNT; i++) {
-			samplePoints[i].x = position.x + Math.sin(i*alpha - phi) * stepSize;
-			samplePoints[i].y = position.y + Math.cos(i*alpha - phi) * stepSize;
-			sensorPoints[i].x = position.x + Math.sin(i*alpha - phi) * sensorRadius;
-			sensorPoints[i].y = position.y + Math.cos(i*alpha - phi) * sensorRadius;
+			
+			// sin/cos switchet to have pi/2 offset.
+			samplePoints[i].x = position.x + Math.sin(i*alpha - position.phi) * stepSize;
+			samplePoints[i].y = position.y + Math.cos(i*alpha - position.phi) * stepSize;
+			sensorPoints[i].x = position.x + Math.sin(i*alpha - position.phi) * sensorRadius;
+			sensorPoints[i].y = position.y + Math.cos(i*alpha - position.phi) * sensorRadius;
 			
 			Point collisionPoint = controller.collisionPointWithRay(new Line(position, sensorPoints[i]));
 			if (collisionPoint != null) {

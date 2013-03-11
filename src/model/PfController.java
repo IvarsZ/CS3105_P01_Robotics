@@ -12,7 +12,6 @@ public class PfController extends BaseController {
 
 	public static void main(String[] args)
 	{
-		// TODO rename.
 		PfController environment =  new PfController();
 		PfRobotGui gui = new PfRobotGui(environment);
 		environment.setGui(gui);
@@ -21,7 +20,7 @@ public class PfController extends BaseController {
 	public final void fixedSetup() {
 
 		// Read goal and robot's start configuration, and create the robot.
-		BaseRobotConfiguration robotConfiguration =  gui.readStartConfiguration();
+		PfSetup robotConfiguration =  gui.readPfConfigurationFromGui();
 		robot = new PfRobot(robotConfiguration, this);
 		goal = robotConfiguration.getGoal();
 		
@@ -60,12 +59,9 @@ public class PfController extends BaseController {
 		gui.clear();
 
 		// Read goal and robot's start configuration.
-		// TODO refactor with fixed setup.
-		PfRobotConfiguration robotConfiguration =
-						   new PfRobotConfiguration(x, y, phi, r, sensorRadius, stepSize, new Goal(goalX, goalY, goalR));
+		PfSetup robotConfiguration =
+						   new PfSetup(x, y, phi, r, sensorRadius, stepSize, new Goal(goalX, goalY, goalR));
 		robot = new PfRobot(robotConfiguration, this);
-		
-		gui.drawGoal(robotConfiguration.getGoal());
 	}
 
 	@Override

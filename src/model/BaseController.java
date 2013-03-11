@@ -24,11 +24,11 @@ public abstract class BaseController {
 		isRobotAutoMoving = false;
 	}
 
-	public final void moveRobot() {
+	public final void moveRobot() throws InterruptedException {
 
 		if (!getRobot().isGoalReached()) {
 
-			getRobot().move();
+			getRobot().step();
 			numberOfMoves++;
 			updateGui();
 
@@ -36,6 +36,7 @@ public abstract class BaseController {
 				System.out.println("moves: " + numberOfMoves);
 				System.out.println("path length: " + numberOfMoves * getRobot().getStepSize());
 				System.out.println("turns: " + turnCount);
+				// TODO other stuff (sensor/step, etc).
 			}
 		}
 	}
@@ -109,7 +110,7 @@ public abstract class BaseController {
 		}
 	}
 
-	public final void reset() {
+	public void reset() {
 
 		// Reset the counter variables.
 		numberOfMoves = 0;
@@ -134,6 +135,7 @@ public abstract class BaseController {
 
 	public final Point collisionPointWithRay(Line ray) {
 
+		System.out.println(ray);
 		Point collisionPoint = null;
 
 		// For each obstacle and each it's line,
@@ -153,6 +155,11 @@ public abstract class BaseController {
 		}
 
 		return collisionPoint;
+	}
+	
+	public final Point collisionPointWithRay(Point start, double length, double alpha) {
+		System.out.println(alpha);
+		return collisionPointWithRay(new Line(start, new Point(start.x + Math.cos(alpha) * length, start.y + Math.sin(alpha) * length)));
 	}
 
 	public final void incrementTurnsCount() {
