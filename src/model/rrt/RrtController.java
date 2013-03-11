@@ -3,15 +3,21 @@ package model.rrt;
 import gui.RobotGuiBase;
 import gui.RrtRobotGui;
 
+import java.awt.Color;
 import java.util.Scanner;
 
 import model.BaseController;
 import model.BaseRobot;
 import model.BaseSetup;
 import model.geometry.Point;
-import model.pf.PfRobot;
-import model.pf.PfSetup;
 
+/**
+ * 
+ * RRT controller.
+ * 
+ * @author iz2
+ *
+ */
 public class RrtController extends BaseController {
 	
 	public static void main(String[] args)
@@ -39,7 +45,9 @@ public class RrtController extends BaseController {
 	public void reset() {
 		super.reset();
 		
-		gui.drawBoundCircle(robot.getCentreOfBound(), robot.getRadiusOfBound());
+		// Draws the bound circle and goal bias bound circle.
+		gui.drawBoundCircle(robot.getCentreOfBound(), robot.getRadiusOfBound(), Color.BLACK);
+		gui.drawBoundCircle(robot.getGoal().getPosition(), robot.getCentreOfBound().distanceTo(goal.getPosition()), Color.BLUE);
 		gui.update();
 	}
 	
@@ -87,6 +95,12 @@ public class RrtController extends BaseController {
 		double circleBoundExtra = in.nextDouble();
 		RrtSetup rrtSetup = new RrtSetup(baseSetup, goalBias, circleBoundExtra);
 		robot = new RrtRobot(rrtSetup, this);
+	}
+	
+	protected void printStatistics() {
+		super.printStatistics();
+		System.out.println("Nodes in the tree " + robot.getNodesCount());
+		System.out.println("Used to toal nodes ratio " + (100 * robot.getNodesInPathCount()) / robot.getNodesCount() + "%");
 	}
 
 	@Override

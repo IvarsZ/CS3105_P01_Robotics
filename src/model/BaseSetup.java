@@ -40,4 +40,12 @@ public class BaseSetup {
 	public Goal getGoal() {
 		return goal;
 	}
+	
+	public void print() {
+		
+		System.out.println("position: x" + (int) position.x + " y " + (int) position.y + " phi " + (int) Math.toDegrees(position.phi) + "°");
+		System.out.println("goal: x" + (int) goal.getPosition().x + " y " + (int) goal.getPosition().y + " r " + goal.getRadius());
+		System.out.println("step size " + stepSize);
+		System.out.println("robot radius " + robotRadius);
+	}
 }

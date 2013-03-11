@@ -2,6 +2,13 @@ package model;
 
 import model.geometry.Point;
 
+/**
+ * 
+ * Represents the goal of the robot navigation.
+ * 
+ * @author iz2
+ *
+ */
 public class Goal {
 	
 	private Point position;

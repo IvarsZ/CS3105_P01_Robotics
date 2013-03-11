@@ -3,6 +3,13 @@ package model.pf;
 import model.BaseSetup;
 import model.Goal;
 
+/**
+ * 
+ * PF robot configuration setup.
+ * 
+ * @author iz2
+ *
+ */
 public class PfSetup extends BaseSetup {
 	
 	private int sensorRadius;
@@ -13,6 +20,7 @@ public class PfSetup extends BaseSetup {
 		
 		this.sensorRadius = sensorRadius;
 		this.samplePointCount = samplePointCount;
+		print();
 	}
 	
 	public PfSetup(BaseSetup baseConfiguration, int sensorRadius, int samplePointCount) {
@@ -20,6 +28,7 @@ public class PfSetup extends BaseSetup {
 		
 		this.sensorRadius = sensorRadius;
 		this.samplePointCount = samplePointCount;
+		print();
 	}
 
 	public int getSensorRadius() {
@@ -28,5 +37,12 @@ public class PfSetup extends BaseSetup {
 
 	public int getSamplePointCount() {
 		return samplePointCount;
+	}
+	
+	@Override
+	public void print() {
+		super.print();
+		System.out.println("sensor radius: " + sensorRadius);
+		System.out.println("sample point count : " + samplePointCount);
 	}
 }

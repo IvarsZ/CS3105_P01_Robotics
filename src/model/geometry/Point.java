@@ -3,6 +3,13 @@ package model.geometry;
 import rrts.RrtConfiguration;
 import dataStructures.IntPoint;
 
+/**
+ * 
+ * 2D point. Can generate uniformly and non-uniformly random points inside circles.
+ * 
+ * @author iz2
+ *
+ */
 public class Point {
 
 	public double x;
@@ -57,6 +64,24 @@ public class Point {
 
 		// Fix distribution so it's uniform and scale to [0, radius]
 		double R = Math.sqrt(r) * radius; 
+
+		double x = centre.x + Math.cos(angle) * R;
+		double y = centre.y + Math.sin(angle) * R;
+		
+		return new Point(x, y);
+	}
+	
+	/**
+	 * Biased towards the centre.
+	 */
+	public static Point nonuniformRandomPointInCirle(Point centre, double radius) {
+
+		// Random values for the radius and angle of the vector to the generated point.
+		double r = Math.random();
+		double angle = Math.random() * 2 * Math.PI;
+
+		// Scale random radius to [0, radius], biased towards the centre.
+		double R = r * radius; 
 
 		double x = centre.x + Math.cos(angle) * R;
 		double y = centre.y + Math.sin(angle) * R;

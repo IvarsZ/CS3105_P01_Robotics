@@ -10,8 +10,13 @@ import model.geometry.Point;
 import rrts.RRTree2D;
 import rrts.RrtConfiguration;
 
-// TODO naming.
-
+/**
+ * 
+ * RRT robot model.
+ * 
+ * @author iz2
+ *
+ */
 public class RrtRobot extends BaseRobot {
 
 	private RrtController controller;
@@ -24,11 +29,13 @@ public class RrtRobot extends BaseRobot {
 	private int pathIndex;
 	
 	private Point centreOfBound;
-	private double radiusOfBound; // TODO extra when reading in.
+	private double radiusOfBound;
 	private double goalBias;
+	
+	private int nodesCount;
 
 	public RrtRobot(RrtSetup robotConfiguration, RrtController controller) {
-		super(robotConfiguration, controller);
+		super(robotConfiguration);
 
 		this.controller = controller;
 
@@ -39,10 +46,14 @@ public class RrtRobot extends BaseRobot {
 		rrTree.setStartAndGoal(position.toRrtConfiguration(), goal.getPosition().toIntPoint(), goal.getRadius());
 		
 		centreOfBound = new Point((position.x + goal.getPosition().x)/2, (position.y + goal.getPosition().y)/2);
-		System.out.println(centreOfBound);
+		
+		// Adds the extra specified bound to the bound radius.
 		radiusOfBound = position.distanceTo(goal.getPosition()) * (0.5 + robotConfiguration.getCircleBoundExtra());
 		
 		goalBias = robotConfiguration.getGoalBias();
+		
+		// Includes starting node.
+		nodesCount = 1;
 	}
 
 	@Override
@@ -55,7 +66,7 @@ public class RrtRobot extends BaseRobot {
 
 		if (path == null) {
 
-			// move. // TODO this is automove instead of step.
+			// Find path.
 			RrtConfiguration goalConfiguration = new RrtConfiguration((float) goal.getPosition().x, (float) goal.getPosition().y, 0);
 			RrtConfiguration nearestNodeToGoal = rrTree.getNearestNeighbour(goalConfiguration);
 
@@ -65,8 +76,12 @@ public class RrtRobot extends BaseRobot {
 			}
 		}
 
+		double prevPhi = position.phi;
+		
 		position = new DirectedPoint(path.get(pathIndex));
 		pathIndex++;
+		
+		controller.increaseTurningDone(prevPhi - position.phi);
 	}
 
 	protected void expand() {
@@ -76,21 +91,40 @@ public class RrtRobot extends BaseRobot {
 			boolean didExpand = false;
 			while (!didExpand) {
 
-				// Random sample point with goal bias.
+				// Random sample point,
 				double r = Math.random();
 				if (r <= goalBias) {
-					lastSamplePoint = goal.getPosition();
+					
+					// with goal bias picks a point in a circle around the goal that's exactly inside the original bounds circle.
+					// the pick favors the centre of the circle (i.e. goal).
+					lastSamplePoint = Point.nonuniformRandomPointInCirle(goal.getPosition(), centreOfBound.distanceTo(goal.getPosition()));
+					
+					// lastSamplePoint = goal.getPosition(); Old goal bias.
 				}
 				else {
+					
+					// without goal bias.
 					lastSamplePoint = Point.uniformRandomPointInCirle(centreOfBound, radiusOfBound);
 				}
 				double x = lastSamplePoint.x;
 				double y = lastSamplePoint.y;
 
+				// Get nearest node.
 				RrtConfiguration nearestNode = rrTree.getNearestNeighbour(new DirectedPoint(x, y, 0).toRrtConfiguration());
 
 				// Expand it towards the sample point (ends up facing it), but bound it.
-				float alpha = (float) Math.atan2(y - nearestNode.getY(), x - nearestNode.getX()) - nearestNode.getPhi();
+				float alpha = (float) Math.atan2(y - nearestNode.getY(), x - nearestNode.getX());
+				alpha -= nearestNode.getPhi();
+				
+				// Convert to range -PI..PI
+				while (alpha < -Math.PI) {
+					alpha += 2*Math.PI;
+				}
+				while (alpha > Math.PI) {
+					alpha -= 2*Math.PI;
+				}
+				
+				// Limit turning to -PI/2..PI/2
 				if (alpha < -Math.PI/2) {
 					alpha = (float) (-Math.PI/2);
 				}
@@ -98,11 +132,11 @@ public class RrtRobot extends BaseRobot {
 					alpha = (float) (Math.PI/2);
 				}
 
-				// Check for collision.
-				System.out.println(alpha + " " + nearestNode.getPhi());
-				if (controller.collisionPointWithRay(new Point(nearestNode.getX(), nearestNode.getY()), stepSize, alpha/2 + nearestNode.getPhi()) == null) {
+				// Check for no collisions.
+				if (!isColliding(nearestNode, alpha)) {
 
 					rrTree.addNode(nearestNode, stepSize, alpha);
+					nodesCount++;
 
 					// Check if the goal is reached.
 					RrtConfiguration goalConfiguration = new RrtConfiguration((float) goal.getPosition().x, (float) goal.getPosition().y, 0);
@@ -111,11 +145,22 @@ public class RrtRobot extends BaseRobot {
 						solved = true;
 					}
 
-
 					didExpand = true;
 				}
 			}
 		}
+	}
+	
+	private boolean isColliding(RrtConfiguration node, double alpha) {
+		
+		double adjustedAlpha = alpha/2 + node.getPhi();
+		double sizeAngle = Math.atan2(stepSize, robotRadius);
+		Point nodePoint = new Point(node.getX(), node.getY());
+		
+		return controller.collisionPointWithRay(nodePoint, stepSize + robotRadius, adjustedAlpha) != null ||
+			   controller.collisionPointWithRay(nodePoint, stepSize + robotRadius, adjustedAlpha + sizeAngle) != null ||
+			   controller.collisionPointWithRay(nodePoint, stepSize + robotRadius, adjustedAlpha - sizeAngle) != null;
+				
 	}
 
 	protected Point getLastSamplePoint() {
@@ -136,5 +181,13 @@ public class RrtRobot extends BaseRobot {
 
 	public double getRadiusOfBound() {
 		return radiusOfBound;
+	}
+	
+	public int getNodesCount() {
+		return nodesCount;
+	}
+	
+	public int getNodesInPathCount() {
+		return path.size();
 	}
 }

@@ -4,15 +4,20 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import model.BaseSetup;
-import model.Goal;
 import model.geometry.Point;
-import model.pf.PfRobot;
 import model.pf.PfSetup;
 import primitiveRenderables.RenderableOval;
 import primitiveRenderables.RenderablePoint;
 import primitiveRenderables.RenderablePolyline;
 import dataStructures.IntPoint;
 
+/**
+ * 
+ * Gui for potential fields robot.
+ * 
+ * @author iz2
+ *
+ */
 public class PfRobotGui extends RobotGuiBase{
 
 	private final ArrayList<RenderablePoint> samplePoints;
@@ -29,22 +34,21 @@ public class PfRobotGui extends RobotGuiBase{
 	{
 		super(actionListener);
 		
+		// Sample points and sensor range and rays.
 		gui.addLabel(0, 5, "Sensor radius");
 		sensorRadiusTextFieldId = gui.addTextField(0,  6, "200");
+		gui.addLabel(1, 5, "Sample point count");
 		samplePointCountTextFieldId = gui.addTextField(1, 6, "7");
 		
-		sensorRangeOval = new RenderableOval(0, 0, 0, 0);
-		sensorRangeOval.setProperties(Color.BLACK, 1.0f, false);
-
-		// Sample points and sensor rays.
 		samplePoints = new ArrayList<RenderablePoint>();
 		sensorRays = new ArrayList<RenderablePolyline>();
+		sensorRangeOval = new RenderableOval(0, 0, 0, 0);
+		sensorRangeOval.setProperties(Color.BLACK, 1.0f, false);
 
 		// Show the GUI.
 		gui.show();
 	}
 
-	// TODO better naming too similar with controller.
 	public BaseSetup readBaseSetupFromGu() {
 		return super.readBaseSetupFromGu();
 	}

@@ -7,8 +7,6 @@ import model.geometry.Point;
 
 import org.junit.Test;
 
-import dataStructures.IntPoint;
-
 public class LineTest {
 
 	@Test
@@ -53,14 +51,12 @@ public class LineTest {
 	 */
 	@Test
 	public void testIntersectionPresicion() {
-		//(398.20508075688775, 256.69872981077805) (498.20508075688775, 429.9038105676658) (400.0, 400.0) (600.0, 400.0)
+		
 		Line line1 = new Line(398.20508075688775, 256.69872981077805, 498.20508075688775, 429.9038105676658);
 		Line line2 = new Line(400, 400, 600, 400);
 		Point expectedIntersection = new Point(480.9401076758502, 399.99999999999994);
 		
 		assertEquals(expectedIntersection, line1.linesIntersection(line2));
 	}
-	
-	// TODO paralel lines intersecting.
 
 }

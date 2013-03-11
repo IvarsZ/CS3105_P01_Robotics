@@ -3,69 +3,37 @@ package gui;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import model.Goal;
 import model.BaseSetup;
+import model.Goal;
 import model.geometry.Point;
-import model.pf.PfRobot;
-
 import primitiveRenderables.RenderableOval;
-import primitiveRenderables.RenderablePoint;
 import primitiveRenderables.RenderablePolygon;
 import primitiveRenderables.RenderablePolyline;
-import rrts.RRTree2D;
-import rrts.RrtConfiguration;
 import dataStructures.IntPoint;
 import easyGui.EasyGui;
 
+/**
+ * 
+ * Base gui.
+ * 
+ * @author iz2
+ *
+ */
 public class RobotGuiBase {
 	
-	/**
-	 * The initial width of the GUI's graphics panel.
-	 */
 	public static final int GUI_WIDTH = 1200;
-
-	/**
-	 * The initial height of the GUI's graphics panel.
-	 */
 	public static final int GUI_HEIGHT = 800;
 
-	/**
-	 * The EasyGui instance used by this GUI.
-	 */
 	protected final EasyGui gui;
 
-	/**
-	 * The ID of the text field for the start position's x-value.
-	 */
 	private final int robotStartXTextFieldId;
-
-	/**
-	 * The ID of the text field for the start position's y-value.
-	 */
 	private final int robotStartYTextFieldId;
-
-	/**
-	 * The ID of the text field for the start position's phi-value.
-	 */
 	private final int robotStartPhiTextFieldId;
-
 	private final int robotRadiusTextFieldId;
-
-	/**
-	 * The ID of the text field for the goal position's x-value.
-	 */
-	private final int goalXTextField;
-
-	/**
-	 * The ID of the text field for the goal position's y-value.
-	 */
-	private final int goalYTextField;
-	
 	private final int stepSizeTextField;
 
-	/**
-	 * The ID of the text field for the goal position's size-value.
-	 */
+	private final int goalXTextField;
+	private final int goalYTextField;
 	private final int goalRadiusTextField;
 
 	private final RenderableOval robotOval;
@@ -92,10 +60,10 @@ public class RobotGuiBase {
 		goalRadiusTextField = gui.addTextField(1, 3, "50");
 
 		// Setup buttons.
-		gui.addButton(0, 7, "Step", actionListener, "moveRobot"); // TODO rename methods.
+		gui.addButton(0, 7, "Step", actionListener, "moveRobot");
 		gui.addButton(1, 7, "Go", actionListener, "toggleAutoMove");
 		gui.addButton(0, 9, "Fixed setup", actionListener, "fixedSetup");
-		gui.addButton(1, 9, "Random setup", actionListener, "fixedSetup"); // TODO
+		// gui.addButton(1, 9, "Random setup", actionListener, "fixedSetup"); // TODO random setup, low priority.
 		gui.addButton(0, 10, "Read obstacles", actionListener, "readObstaclesFromFile");
 		gui.addButton(1, 10, "Read setup", actionListener, "readSetupFromFile");
 
@@ -185,7 +153,7 @@ public class RobotGuiBase {
 	 */
 	public final void clear() {
 
-		// TODO comment or proper place.
+		// Removes the old movement lines.
 		robotMovementLine.xPoints.clear();
 		robotMovementLine.yPoints.clear();
 

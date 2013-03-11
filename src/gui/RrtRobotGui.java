@@ -6,13 +6,19 @@ import java.util.Set;
 
 import model.BaseSetup;
 import model.geometry.Point;
-import model.pf.PfSetup;
 import model.rrt.RrtSetup;
 import primitiveRenderables.Renderable;
 import primitiveRenderables.RenderableOval;
 import primitiveRenderables.RenderablePoint;
 import rrts.RRTree2D;
 
+/**
+ * 
+ * RRT gui.
+ * 
+ * @author iz2
+ *
+ */
 public class RrtRobotGui extends RobotGuiBase {
 
 	Set<Renderable> treeRenderables;
@@ -25,7 +31,7 @@ public class RrtRobotGui extends RobotGuiBase {
 		
 		gui.addLabel(0, 5, "Goal bias");
 		gui.addLabel(1, 5, "Extra bound");
-		goalBiasTextFieldId = gui.addTextField(0,  6, "0.1");
+		goalBiasTextFieldId = gui.addTextField(0,  6, "0.2");
 		circleBoundExtraTextFieldId = gui.addTextField(1,  6, "0.5");
 
 		// Extra buttons for solve and expand.
@@ -48,16 +54,15 @@ public class RrtRobotGui extends RobotGuiBase {
 	}
 
 	public void drawSamplePoint(Point point) {
-		// TODO Don't redraw?
 		RenderablePoint renderablePoint = new RenderablePoint(point.toIntPoint());
-		renderablePoint.setProperties(Color.BLACK, 10f, true);
+		renderablePoint.setProperties(Color.BLACK, 3f, true);
 		gui.draw(renderablePoint);
 	}
 
-	public void drawBoundCircle(Point centre, double radius) {
+	public void drawBoundCircle(Point centre, double radius, Color color) {
 
 		RenderableOval robotOval = new RenderableOval(centre.toIntPoint(), (int) (2*radius), (int) (2*radius));
-		robotOval.setProperties(Color.BLACK, 1.0f, false);
+		robotOval.setProperties(color, 1.0f, false);
 		gui.draw(robotOval);
 	}
 

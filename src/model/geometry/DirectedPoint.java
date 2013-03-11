@@ -2,10 +2,19 @@ package model.geometry;
 
 import rrts.RrtConfiguration;
 
+/**
+ * 
+ * Point with a direction angle.
+ * 
+ * @author iz2
+ *
+ */
 public class DirectedPoint extends Point {
 
-	// TODO make sure all classes use this.
-	public double phi; // heading.
+	/**
+	 * The heading angle (direction) of the point.
+	 */
+	public double phi;
 	
 	public DirectedPoint(double x, double y, double phi) {
 		super(x, y);
@@ -20,6 +29,6 @@ public class DirectedPoint extends Point {
 	}
 
 	public RrtConfiguration toRrtConfiguration() {
-		return new RrtConfiguration((float) x, (float) y, (float) phi); // TODO are the casts ok?
+		return new RrtConfiguration((float) x, (float) y, (float) phi);
 	}
 }

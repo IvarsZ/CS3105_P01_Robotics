@@ -3,22 +3,22 @@ package model;
 import model.geometry.DirectedPoint;
 import model.geometry.Point;
 
-
+/**
+ * 
+ * Common basis for rrt and pf robots.
+ * 
+ * @author iz2
+ *
+ */
 public abstract class BaseRobot {
 
-	private BaseController controller;
-
-	// TODO proper visibility.
 	protected DirectedPoint position;
 	
 	protected int robotRadius;
 	protected int stepSize;
 	protected Goal goal;
 	
-	// TODO general configuration.
-	public BaseRobot(BaseSetup robotConfiguration, BaseController controller) {
-
-		this.controller = controller;
+	public BaseRobot(BaseSetup robotConfiguration) {
 
 		// Read the configuration.
 		position = robotConfiguration.getPosition();
@@ -27,11 +27,11 @@ public abstract class BaseRobot {
 		goal = robotConfiguration.getGoal();
 	}
 
-	// FIXME automove twice after reading config.
-	// TODO method for collisions. ?? and the list?
-
 	public abstract void step() throws InterruptedException;
 
+	/**
+	 * @return true if the goal and robot touch, i.e. their distance is smaller than combined radiuses.
+	 */
 	public boolean isGoalReached() {
 		return position.distanceTo(goal.getPosition()) <= robotRadius + goal.getRadius();
 	}
@@ -47,9 +47,9 @@ public abstract class BaseRobot {
 	public int getStepSize() {
 		return stepSize;
 	}
-	
-	public void incrementTurnsCount() {
-		controller.incrementTurnsCount();
+
+	public Goal getGoal() {
+		return goal;
 	}
 }
 

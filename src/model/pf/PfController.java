@@ -9,6 +9,13 @@ import model.BaseController;
 import model.BaseRobot;
 import model.BaseSetup;
 
+/**
+ * 
+ * PF controller.
+ * 
+ * @author iz2
+ *
+ */
 public class PfController extends BaseController {
 	
 	private PfRobotGui gui;
@@ -64,5 +71,11 @@ public class PfController extends BaseController {
 	@Override
 	protected BaseRobot getRobot() {
 		return robot;
+	}
+	
+	@Override
+	protected void printStatistics() {
+		super.printStatistics();
+		System.out.println("Step/sensor radius ratio " + (100 * robot.getStepSize())/robot.getSensorRadius() + "%");
 	}
 }

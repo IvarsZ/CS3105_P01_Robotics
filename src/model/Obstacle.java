@@ -7,6 +7,13 @@ import java.util.NoSuchElementException;
 import model.geometry.Line;
 import model.geometry.Point;
 
+/**
+ * 
+ * An obstacle on the map, it is a polygon of any shape.
+ * 
+ * @author iz2
+ *
+ */
 public class Obstacle implements Iterable<Line> {
 	
 	private ArrayList<Point> points;
@@ -23,6 +30,10 @@ public class Obstacle implements Iterable<Line> {
 		return points;
 	}
 
+	/**
+	 *
+	 * @return an iterator over the lines making up the polygon of the obstacle.
+	 */
 	public Iterator<Line> linesIterator() {
 		
 		return new Iterator<Line>() {

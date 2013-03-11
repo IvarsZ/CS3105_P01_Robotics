@@ -12,13 +12,20 @@ import javax.swing.JFileChooser;
 import model.geometry.Line;
 import model.geometry.Point;
 
+/**
+ * 
+ * The base of controllers for pf and rrt robots, manage interaction with ui and collision detection.
+ * 
+ * @author iz2
+ *
+ */
 public abstract class BaseController {
 	
 	protected Goal goal;
 
 	private boolean isRobotAutoMoving;
 	private int numberOfMoves;
-	private int turnCount;
+	private double turningDone; // angle in radians.
 	
 	private ArrayList<Obstacle> obstacles;
 
@@ -36,10 +43,7 @@ public abstract class BaseController {
 			updateGui();
 
 			if (getRobot().isGoalReached()) {
-				System.out.println("moves: " + numberOfMoves);
-				System.out.println("path length: " + numberOfMoves * getRobot().getStepSize());
-				System.out.println("turns: " + turnCount);
-				// TODO other stuff (sensor/step, etc).
+				printStatistics();
 			}
 		}
 	}
@@ -106,17 +110,17 @@ public abstract class BaseController {
 	}
 
 	/**
-	 * reads and adds.
-	 * @param in
-	 * @throws FileNotFoundException
+	 * Reads obstacles from the scanner and adds them.
 	 */
 	private final void readObstacles(Scanner in) throws FileNotFoundException {
 
+		obstacles = new ArrayList<Obstacle>();
 		int obstacleCount = in.nextInt();
 		for (int i = 0; i < obstacleCount; i++) {
 
 			Obstacle obstacle = new Obstacle();
 
+			// Read and add all points of the obstacle.
 			int pointsCount = in.nextInt();
 			for (int j = 0; j < pointsCount; j++) {
 
@@ -133,7 +137,7 @@ public abstract class BaseController {
 
 		// Reset the counter variables.
 		numberOfMoves = 0;
-		turnCount = 0;
+		turningDone = 0;
 		
 		isRobotAutoMoving = false;
 
@@ -152,9 +156,11 @@ public abstract class BaseController {
 		obstacles.add(obstacle);
 	}
 
+	/**
+	 * @return the closest collision point to the start of the ray, null if the ray does not collide with any obstacles.
+	 */
 	public final Point collisionPointWithRay(Line ray) {
 
-		System.out.println(ray);
 		Point collisionPoint = null;
 
 		// For each obstacle and each it's line,
@@ -176,13 +182,25 @@ public abstract class BaseController {
 		return collisionPoint;
 	}
 	
+	/**
+	 * @param start - of the ray.
+	 * @param length - of the ray.
+	 * @param alpha - angle of the ray.
+	 * 
+	 * @return the closest collision point to the start of the ray, null if the ray does not collide with any obstacles.
+	 */
 	public final Point collisionPointWithRay(Point start, double length, double alpha) {
-		System.out.println(alpha);
 		return collisionPointWithRay(new Line(start, new Point(start.x + Math.cos(alpha) * length, start.y + Math.sin(alpha) * length)));
 	}
 
-	public final void incrementTurnsCount() {
-		turnCount++;
+	public final void increaseTurningDone(double angle) {
+		turningDone += Math.abs(angle);
+	}
+	
+	protected void printStatistics() {
+		System.out.println("moves: " + numberOfMoves);
+		System.out.println("path length: " + numberOfMoves * getRobot().getStepSize());
+		System.out.println("turns: " + (int) Math.toDegrees(turningDone) + "°");
 	}
 
 	protected abstract void updateGui();
